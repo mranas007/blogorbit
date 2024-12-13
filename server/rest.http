@@ -1,0 +1,49 @@
+###
+// get users
+GET http://127.0.0.1:8000/api/v1/user
+
+###
+// get a user
+GET http://127.0.0.1:8000/api/v1/user/1
+
+###
+
+// register a user
+POST http://127.0.0.1:8000/api/v1/user/signup
+Content-Type: application/json
+
+{
+    "name": "same",
+    "email": "john@example.com",
+    "username": "johndoe75627",
+    "password": "same123123",
+    "password_confirmation": "same123123"
+}
+
+###
+
+GET http://127.0.0.1:8000/api/v1/blog
+
+###
+GET http://127.0.0.1:8000/api/v1/blog/2
+
+###
+GET http://127.0.0.1:8000/api/v1/blog/user/1
+
+###
+GET http://127.0.0.1:8000/api/v1/blogs/user/4
+
+###
+
+POST http://127.0.0.1:8000/api/v1/blog
+Content-Type: application/json
+
+{
+    "author_id": 4,
+    "title": "How to Start Blogging",
+    "slug":  "how-to-start-blogging",
+    "category": "technology",
+    "content": "Blogging is an excellent way to express your ideas and connect with an audience. In this post, we will explore the basics of starting a blog and growing it over time.",
+}
+
+###
