@@ -7,6 +7,7 @@ import axiosApi from "../services/axiosApi";
 
 // Auth Context
 import { useAuthContext } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 function MyPosts() {
     // check it user's token doesn't exist then redirect to login
@@ -19,6 +20,8 @@ function MyPosts() {
         }
     }, [token, navigate]);
 
+    // Notify for an alert
+    const notify = (val) => toast(val);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false)
@@ -29,7 +32,7 @@ function MyPosts() {
                 throw new Error("User ID not found in local storage.");
             }
 
-            const response = await axiosApi.get(`/blogs/user/${userId}`);
+            const response = await axiosApi.get(`/user/blog/all/${userId}`);
             if (response.data.status) {
                 setPosts(response.data.blogs); // Set the blogs correctly
             } else if (response.data.status === 404 || response.data.status === false) {
@@ -37,7 +40,7 @@ function MyPosts() {
             }
 
         } catch (error) {
-            setError(error.message || "An error occurred while fetching posts.");
+            console.log(error.message || "An error occurred while fetching posts.");
         } finally {
             setLoading(false);
         }
@@ -46,6 +49,55 @@ function MyPosts() {
         fetchingData()
     }, []);
 
+    // navigate for update the post
+    const handleEditPost = (id) => {
+        id && navigate(`/updatepost/${id}`);
+    }
+
+    // delete the post
+    const handleDeletePost = (postId) => {
+        // Show confirmation dialog
+        const confirmDelete = window.confirm('Are you sure you want to delete this post?');
+
+        if (confirmDelete) {
+            deletePost(postId);
+        }
+    };
+
+    const deletePost = async (postId) => {
+        // Reset previous error states
+
+        try {
+            const response = await axiosApi.delete(`/user/blog/delete/${postId}`);
+
+            // Check for successful deletion
+            if (response.data && response.data.status === true) {
+                // Update posts list by filtering out the deleted post
+                setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+                // Optional: Show success toast/notification
+                toast.success('Post deleted successfully');
+            } else {
+                // Handle specific error scenarios
+                switch (response.data.status) {
+                    case 404:
+                        setNotFound(true);
+                        toast.error('Post not found');
+                        break;
+                    case 403:
+                        toast.error('You are not authorized to delete this post');
+                        break;
+                    default:
+                        setError(response.data.message || "Failed to delete post");
+                }
+            }
+        } catch (error) {
+            // Handle network or unexpected errors
+            setError(error.response?.data?.message || error.message || "An unexpected error occurred");
+            toast.error('Failed to delete post');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -56,7 +108,17 @@ function MyPosts() {
     }
 
     if (notFound) {
-        return <PostNotFound />;
+        return (
+            <>
+                <Link
+                    to="/createnewpost"
+                    className="absolute right-3 top-24 px-4 py-2  rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                    Create a Post
+                </Link>
+                <PostNotFound head="No Post Yet" />
+            </>
+        );
     }
 
     return (
@@ -73,7 +135,12 @@ function MyPosts() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 {posts.map((post) => (
-                    <PostCard key={post.id} post={post} />
+                    <PostCard
+                        key={post.id}
+                        post={post}
+                        onEdit={() => handleEditPost(post.id)}
+                        onDelete={() => handleDeletePost(post.id)}
+                    />
                 ))}
 
             </div>

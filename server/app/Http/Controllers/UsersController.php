@@ -13,13 +13,23 @@ class UsersController extends Controller
 {
         // This method will return all Users 
     public function indexUsers() // <<<<<<<<<<<<<<<<<<<<  not approved >>>>>>>>>>>>>>>>>>>>
-
     {
         $users = User::all();
+        
+        if(!$users){
+            return response()->json([
+                'status' => false,
+                'message'=> 'user not found!',
+                'users' => null,
+                'error'=> 'user not found'
+            ]);
+        }
 
         return response()->json([
             'status' => true,
+            'message'=> 'success',
             'users' => $users,
+            'error'=> null
         ]);
     }
 

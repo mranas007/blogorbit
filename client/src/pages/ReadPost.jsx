@@ -24,7 +24,7 @@ const ReadPost = () => {
     // Fetch blog posts
     const fetchData = async () => {
         try {
-            const response = await axiosApi.get(`/blogs`);
+            const response = await axiosApi.get(`/blog/all`);
             if (response.data.status) {
                 setPosts(response.data.blogs);
             } else if (response.data.status === 404) {

@@ -1,5 +1,5 @@
 import { React, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Auth Context
 import { useAuthContext } from '../context/AuthContext';
@@ -79,9 +79,12 @@ const BlogAuthorProfile = () => {
             </div>
 
             <div className="mt-6">
-              <button className="w-full py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-600 transition transform hover:scale-105 duration-300">
-                View My Blog
-              </button>
+              <Link
+                to="/myposts">
+                <button className="w-full py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-600 transition transform hover:scale-105 duration-300">
+                  My Blog
+                </button>
+              </Link>
             </div>
           </div>
         </div>

@@ -23,7 +23,7 @@ function Header() {
     return (
         <>
             <div className={`h-[75px] ${!isSticky && "hidden"}`}></div>
-            <header className={`z-50 bg-white/80 backdrop-blur-md shadow-md min-h-[75px]  ${isSticky ? "fixed top-0 left-0 right-0" : "relative"}
+            <header className={`z-50 bg-white/40 backdrop-blur-3xl shadow-md min-h-[75px]  ${isSticky ? "fixed top-0 left-0 right-0" : "relative"}
                 transition-all duration-300 ease `}>
 
                 <div className={`container mx-auto w-full flex items-center justify-between px-6 py-4 z-50`}>
@@ -40,25 +40,25 @@ function Header() {
                     <nav className="hidden md:flex space-x-6">
                         <NavLink
                             to="/home"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? 'text-gray-600 font-bold' : ''}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             Home
                         </NavLink>
 
                         <NavLink
                             to="/blog"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? 'text-gray-600 font-bold' : ''}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             Blog
                         </NavLink>
 
                         <NavLink
                             to="/readPost"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? 'text-gray-600 font-bold' : ''}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             Read Posts
                         </NavLink>
 
                         <NavLink
                             to="/myposts"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? 'text-gray-600 font-bold' : ''}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             My Posts
                         </NavLink>
                     </nav>
@@ -84,11 +84,11 @@ function Header() {
                             </div>
                         </button>
 
-                        {/* My Account */}
+                        {/* My Account Profile */}
                         <NavLink
                             to="/myprofile"
                             className="w-10 h-10 rounded-full border border-gray-300 ">
-                            <img src={"assets/images/23042919.jpg"} alt="profile..." className="rounded-full object-cover" width="100%" />
+                            <img src={"/assets/images/23042919.jpg"} className="rounded-full object-cover" width="100%" />
                         </NavLink>
                     </div>
                 </div>
@@ -116,31 +116,31 @@ function Header() {
                     <nav className="flex flex-col justify-start space-y-4 p-8 text-xl">
                         <NavLink
                             to="/home"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? ' font-bold' : 'text-gray-600'}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             Home
                         </NavLink>
 
                         <NavLink
                             to="/blog"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? ' font-bold' : 'text-gray-600'}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             Blog
                         </NavLink>
 
                         <NavLink
                             to="/readPost"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? ' font-bold' : 'text-gray-600'}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             Read Posts
                         </NavLink>
 
                         <NavLink
                             to="/myposts"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? ' font-bold' : 'text-gray-600'}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             My Posts
                         </NavLink>
 
                         <NavLink
                             to="/myprofile"
-                            className={({ isActive }) => `text-gray-950 hover:text-gray-800 ${isActive ? ' font-bold' : 'text-gray-600'}`}>
+                            className={({ isActive }) => `text-gray-700 hover:text-indigo-600 ${isActive ? 'text-indigo-600 font-bold' : ''}`}>
                             My Profile
                         </NavLink>
                     </nav>

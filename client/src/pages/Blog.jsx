@@ -1,56 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import PostCard from '../components/PostCard';
-import PageLoader from '../components/PageLoader';
-import axiosApi from '../services/axiosApi';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import PostCard from "../components/PostCard";
+import PageLoader from "../components/PageLoader";
+import axiosApi from "../services/axiosApi";
 
 // Auth Context
-import { useAuthContext } from '../context/AuthContext';
+import { useAuthContext } from "../context/AuthContext";
 
 const Blog = () => {
-    // check it user's token doesn't exist then redirect to login
     const navigate = useNavigate();
     const { token } = useAuthContext();
 
+    const [loading, setLoading] = useState(true); // Tracks loading state
+    const [posts, setPosts] = useState({ blogs: [], pagination: {} }); // Holds blog posts and pagination data
+    const [notFound, setNotFound] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1); // Tracks the current page
+
+    // Redirect to login if no token
     useEffect(() => {
         if (!token) {
             navigate("/login");
         }
     }, [token, navigate]);
 
-    const [loading, setLoading] = useState(true); // Tracks loading state
-    const [posts, setPosts] = useState([]); // Holds blog posts
-    const [notFound, setNotFound] = useState(false);
-
     // Fetch blog posts
-    const fetchData = async () => {
+    const fetchData = async (page = 1) => {
+        setLoading(true);
         try {
-            const response = await axiosApi.get(`/blogs`);
+            const response = await axiosApi.get(`/blog/all?page=${page}`);
             if (response.data.status) {
-                setPosts(response.data.blogs);
+                setPosts(response.data);
+                setCurrentPage(page);
             } else if (response.data.status === false) {
-                setNotFound(true)
+                setNotFound(true);
             } else {
-                console.error('Error fetching blog posts:', response.data.error);
+                console.error("Error fetching blog posts:", response.data.error);
             }
         } catch (error) {
-            console.error('Error fetching data:', error.message);
+            console.error("Error fetching data:", error.message);
         } finally {
             setLoading(false);
         }
     };
 
+    // Fetch data on component mount or when the current page changes
     useEffect(() => {
-        fetchData();
-    }, []);
+        fetchData(currentPage);
+    }, [currentPage]);
 
     if (loading) {
         return <PageLoader />;
     }
 
     if (notFound) {
-        return <PostNotFound />;
+        return <div>Posts Not Found</div>;
     }
+
     return (
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
             {/* Gradient Header */}
@@ -69,43 +74,73 @@ const Blog = () => {
             {/* Blog Posts Grid */}
             <main className="container mx-auto px-6 py-12">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {posts.map((post, index) => (
+                    {posts.blogs.map((post, index) => (
                         <PostCard key={index} post={post} />
                     ))}
                 </div>
             </main>
 
-            {/* Pagination */}
+            {/* <<<<<<<<<<<<<<<<<<<<<<<< Pagination >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */}
             <nav className="container mx-auto px-6 py-12 flex justify-center">
                 <div className="inline-flex items-center space-x-2">
+                    {/* Previous Button */}
                     <button
                         aria-label="Previous Page"
-                        className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-600 transition transform hover:scale-105 duration-300"
+                        onClick={() => fetchData(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`px-4 py-2 rounded-lg shadow-md transition transform duration-300 ${currentPage === 1
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 hover:scale-105"
+                            }`}
                     >
                         Previous
                     </button>
+
+                    {/* Pagination Buttons */}
                     <div className="flex space-x-2">
-                        {posts.map((page, index) => (
-                            <button
-                                key={index}
-                                aria-label={`page ${index}`}
-                                className={`w-10 h-10 rounded-full ${index === 1
-                                    ? 'bg-indigo-500 text-white'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    } transition duration-300`}
-                            >
-                                {index}
-                            </button>
-                        ))}
+                        {Array.from({ length: posts.pagination.last_page }, (_, i) => i + 1)
+                            .filter(page =>
+                                page === 1 || // Always show the first page
+                                page === posts.pagination.last_page || // Always show the last page
+                                (page >= currentPage - 1 && page <= currentPage + 1) // Show one page before and after the current page
+                            )
+                            .map((page, index, pages) => (
+                                <>
+                                    {/* Add ellipsis if there's a gap */}
+                                    {index > 0 && page - pages[index - 1] > 1 && (
+                                        <span key={`ellipsis-${index}`} className="w-10 h-10 flex items-center justify-center text-gray-500">
+                                            ...
+                                        </span>
+                                    )}
+                                    <button
+                                        key={page}
+                                        aria-label={`Page ${page}`}
+                                        onClick={() => fetchData(page)}
+                                        className={`w-10 h-10 rounded-full ${page === currentPage
+                                            ? "bg-indigo-500 text-white"
+                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                            } transition duration-300`}
+                                    >
+                                        {page}
+                                    </button>
+                                </>
+                            ))}
                     </div>
+
+                    {/* Next Button */}
                     <button
                         aria-label="Next Page"
-                        className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-600 transition transform hover:scale-105 duration-300"
-                    >
+                        onClick={() => fetchData(currentPage + 1)}
+                        disabled={currentPage === posts.pagination.last_page}
+                        className={`px-4 py-2 rounded-lg shadow-md transition transform duration-300 ${currentPage === posts.pagination.total
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 hover:scale-105"
+                            }`}>
                         Next
                     </button>
                 </div>
             </nav>
+
         </div>
     );
 };

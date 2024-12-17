@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const PostNotFound = () => {
+const PostNotFound = (prop) => {
     const navigate = useNavigate()
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-600 p-4">
@@ -29,7 +29,7 @@ const PostNotFound = () => {
                 </div>
 
                 <h1 className="text-4xl font-bold text-black mb-4 tracking-tight">
-                    Post Not Found
+                   {prop.head}
                 </h1>
 
                 <p className="text-gray-700 mb-6 text-lg">

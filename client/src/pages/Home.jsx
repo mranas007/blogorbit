@@ -27,7 +27,7 @@ function Home() {
 
     const fetchData = async () => {
         try {
-            const response = await axiosApi.get(`/blogs`);
+            const response = await axiosApi.get(`/blog/all`);
             if (response.status === 200 && response.data.status) {
                 setPosts(response.data.blogs);
             } else if (response.status === 404 || !response.data.status) {
@@ -69,6 +69,7 @@ function Home() {
                                 <PostCard key={post.id} post={post} />
                             ))}
                         </div>
+
                     </div>
 
                     <Link to="/blog" className="flex justify-center mt-8">

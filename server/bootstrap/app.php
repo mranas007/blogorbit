@@ -12,14 +12,21 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens(except: [
-            'api/v1/user',
-            'api/v1/user/{id}',
             'api/v1/register',
             'api/v1/login',
-            'api/v1/blog',
-            'blog/user',
-            'blogs/user/{id}',
-            'blog/user/{id}',
+
+            'api/v1/subscribe',
+
+            'api/v1/user',
+            'api/v1/user/*',
+
+            'api/v1/blog/*',
+            'api/v1/blog/all',
+
+            'api/v1/user/blog/*',
+            'api/v1/user/blog/all/*',
+            'api/v1/user/blog/store',
+            'api/v1/user/blog/update/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

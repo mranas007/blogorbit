@@ -3,21 +3,13 @@ import { Link } from "react-router-dom";
 
 function Hero({ post }) {
 
-  // const featuredPost = {
-  //   title: "The Impact of Technology on the Workplace: How Technology is Changing",
-  //   category: "Technology",
-  //   author: "Jason Francisco",
-  //   date: "August 20, 2022",
-  //   image: "/assets/images/hero.png",
-  // };
-
   return (
     <section className="relative">
       {/* Featured Image */}
       <img
         src={post.image || "/assets/images/hero.png"}
         alt="image..."
-        className="w-full object-cover"
+        className="w-full h-screen object-cover rounded-b-xl"
       />
 
       {/* BlogCard */}

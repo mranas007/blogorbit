@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Editor from "react-simple-wysiwyg";
 import { toast } from "react-toastify";
-import ButtonLoader from "../components/ButtonLoader";
-import axiosApi from "../services/axiosApi";
+import ButtonLoader from "../../components/ButtonLoader";
+import axiosApi from "../../services/axiosApi";
 
 // Auth context
-import { useAuthContext } from '../context/AuthContext'
+import { useAuthContext } from '../../context/AuthContext'
 
 const CreatePost = () => {
 
@@ -20,111 +20,129 @@ const CreatePost = () => {
     }
   }, [token, navigate]);
 
-  // Notify for an alert
-  const notify = (val) => toast(val);
+
   const [errors, setErrors] = useState({})
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Form Data
+  // Updated State and Form Submission
   const [formData, setFormData] = useState({
     author_id: "",
     title: "",
-    slug: "",
     category: "",
     content: "",
-    image: null,
+    image: null
   });
 
-  // Safely fetch userId from localStorage
-  useEffect(() => {
-    if (userId) {
-      setFormData((prevData) => ({ ...prevData, author_id: userId }));
-    }
-  }, []);
-
-
-
-  // Handle submission form
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      setLoading(true)
-      setErrors({})
-      const response = await axiosApi.post(
-        `/blog`,
-        formData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      )
-
-      // Successs Post
-      if (response.data.status == true) {
-        notify("Successfully Posted!");
-        navigate("/myposts");
-      }
-
-      // handling for Client-provided errors
-      if (response.data.status == false) {
-        setErrors(response.data.errors);
-      }
-
-      // handling for server-provided errors
-    } catch (error) {
-      if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors); // Correctly access error response
-        console.error("Error posting blog:", error.response.data);
-      } else {
-        console.error("Unexpected error:", error);
-      }
-    } finally {
-      setLoading(false)
-    }
-
-  };
-
-  // Handle image upload
-  const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg']; // Add more if needed
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && validImageTypes.includes(file.type)) {
-      setFormData((prevData) => ({ ...prevData, image: file }));
-    } else {
-      const message = file ? `Unsupported image format: ${file.type}` : 'No file selected.';
-      notify(message);
-    }
-  };
-
-  // Handle drag-and-drop for image
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setFormData((prevData) => ({ ...prevData, image: file }));
-    } else {
-      notify("Invalid file type!");
-    }
-  };
-
-  // Generate slug dynamically
   const handleTitleChange = (e) => {
     const title = e.target.value;
-    const slugValue = title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-")
-      .slice(0, 60);
-
     setFormData((prevData) => ({
       ...prevData,
       title: title,
-      slug: slugValue,
     }));
+  };
+
+  // Updated Image Upload Handler
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    // Comprehensive File Validation
+    if (file) {
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+      const maxFileSize = 2 * 1024 * 1024; // 2MB
+
+      if (!validImageTypes.includes(file.type)) {
+        toast.error(`Unsupported image format: ${file.type}`);
+        return;
+      }
+
+      if (file.size > maxFileSize) {
+        toast.error('File size exceeds 2MB limit');
+        return;
+      }
+
+      setFormData({ image: file }) // set to form data
+    }
+  };
+
+  // Updated Drag and Drop Handler
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      // Perform the same validations as in handleImageUpload
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+      const maxFileSize = 2 * 1024 * 1024; // 2MB
+
+      if (!validImageTypes.includes(file.type)) {
+        toast.error(`Unsupported image format: ${file.type}`);
+        return;
+      }
+
+      if (file.size > maxFileSize) {
+        toast.error('File size exceeds 2MB limit');
+        return;
+      }
+      setFormData({ image: file })
+    } else {
+      toast.error("Invalid file type!");
+    }
+  };
+
+  // Comprehensive Form Submission
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    // Create FormData for multipart upload
+    const formDataToSend = new FormData();
+
+    // Append all text fields
+    formDataToSend.append('author_id', userId);  // Use userId directly
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('category', formData.category);
+    formDataToSend.append('content', formData.content);
+
+    // Append image if exists
+    const imageInput = document.getElementById('image');
+    if (imageInput && imageInput.files[0]) {
+      setFormData({ image: imageInput.files[0] })
+      formDataToSend.append('image', imageInput.files[0]);
+    }
+
+    try {
+      setLoading(true);
+      setErrors({});  // Reset errors before submission
+
+      const response = await axiosApi.post('/user/blog/store', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      // Success handling
+      if (response.data.status === true) {
+        toast.success("Blog posted successfully!");
+        navigate("/myposts");
+      }
+
+      // Client-side validation errors
+      if (response.data.status === false) {
+        setErrors(response.data.errors || {});
+      }
+
+    } catch (error) {
+      // Comprehensive error handling
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+        console.error("Blog post error:", error.response.data);
+      } else {
+        toast.error("An unexpected error occurred");
+        console.error("Unexpected error:", error);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -148,7 +166,7 @@ const CreatePost = () => {
         <form onSubmit={handleFormSubmit} className="space-y-8">
           {/* Title Input */}
           <div className={`${errors.title && "border-2 border-red-500"} group bg-white rounded-xl shadow-md p-4 transition-all duration-300 hover:shadow-lg`}>
-            <div className="flex items-center gap-3 text-gray-400 group-focus-within:text-indigo-500">
+            <div className="flex items-center gap-3 group-focus-within:text-indigo-500">
               <span className="text-xl">✨</span>
               <input
                 type="text"
@@ -210,7 +228,7 @@ const CreatePost = () => {
 
           {/* Image Upload Area */}
           <div
-            className={`${errors.image && "border-2 border-red-500"} relative bg-white rounded-xl shadow-md p-8 transition-all duration-300 ${isDragging ? "border-2 border-dashed border-indigo-500 bg-indigo-50" : ""
+            className={`${errors.image && "border-2 border-red-500"} border-4 relative bg-white rounded-xl shadow-md p-8 transition-all duration-300 ${isDragging ? "border-4 border-dashed border-indigo-500 bg-indigo-50" : ""
               }`}
             onDragOver={(e) => {
               e.preventDefault();
@@ -224,7 +242,7 @@ const CreatePost = () => {
             <input
               type="file"
               id="image"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/jpg,image/gif"
               onChange={handleImageUpload}
               className="hidden"
             />

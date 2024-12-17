@@ -25,10 +25,11 @@ function ReadPostDetails() {
     const fetchData = async () => {
         try {
 
-            const response = await axiosApi.get(`/blog/user/${params.id}`);
-            if (response.data.status && response.data.blog.length > 0) {
+            const response = await axiosApi.get(`/user/blog/${params.id}`);
+            if (response.data.status === true) {
                 // Take the first blog post from the array
-                setPost(response.data.blog[0]);
+                setPost(response.data.blog);
+                console.log(response.data.blog);
             }
         } catch (error) {
             console.error("Error fetching post details:", error);
@@ -69,7 +70,7 @@ function ReadPostDetails() {
                 <div className="flex items-center text-gray-500 mb-4 mt-1 text-sm">
                     {/* {post.author_image && ( */}
                     <img
-                        src={post.author_image || "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="}
+                        src={post?.author_image || "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="}
                         alt="Author"
                         className="w-8 h-8 rounded-full mr-1"
                     />
@@ -78,7 +79,7 @@ function ReadPostDetails() {
                         <p>By <strong className="text-lg text-gray-800">{post?.author_name || "Unknown"}</strong> |</p>
                         <span className="text-xs text-gray-800">posted at
                             <span className="px-2 py-1 ml-1 text-xs text-gray-800 bg-gray-100 rounded-full">
-                                {new Date(post.created_at).toLocaleDateString() || "Unknown date"}
+                                {post.created_at || "Unknown date"}
                             </span>
                         </span>
                     </div>

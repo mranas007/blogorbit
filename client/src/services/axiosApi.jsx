@@ -18,14 +18,18 @@ axiosApi.interceptors.response.use(
     error => {
         try {
             const { response } = error;
-            if (response.error === 401) {
+            // Check if the response status code is 401 (Unauthorized)
+            if (response && response.status === 401) {
+                // Clear the token and user ID from localStorage
                 localStorage.removeItem("ACCESS_TOKEN");
+                localStorage.removeItem("ACCESS_USER_ID");
+                console.log("Unauthorized! Token and ID removed.");
             }
-        } catch (error) {
-            console.log(error)
-
+        } catch (err) {
+            console.error("Error handling response interceptor:", err);
         }
-        throw error;
+        // Re-throw the error for further handling
+        return Promise.reject(error);
     }
 )
 
